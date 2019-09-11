@@ -1,12 +1,12 @@
 const express = require('express');
 
-const Schemes = require('../data/db-config.js');
+// const Schemes = require('../data/db-config.js');
 const Models = require('./scheme-model')
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  Schemes.find()
+  Models.find()
   .then(schemes => {
     res.json(schemes);
   })
@@ -15,10 +15,10 @@ router.get('/', (req, res) => {
   });
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', validateId, (req, res) => {
   const { id } = req.params;
 
-  Schemes.findById(id)
+  Models.findById(id)
   .then(scheme => {
     if (scheme) {
       res.json(scheme);
@@ -34,7 +34,7 @@ router.get('/:id', (req, res) => {
 router.get('/:id/steps', (req, res) => {
   const { id } = req.params;
 
-  Schemes.findSteps(id)
+  Models.findSteps(id)
   .then(steps => {
     if (steps.length) {
       res.json(steps);
@@ -50,7 +50,7 @@ router.get('/:id/steps', (req, res) => {
 router.post('/', (req, res) => {
   const schemeData = req.body;
 
-  Schemes.add(schemeData)
+  Models.add(schemeData)
   .then(scheme => {
     res.status(201).json(scheme);
   })
@@ -63,7 +63,7 @@ router.post('/:id/steps', (req, res) => {
   const stepData = req.body;
   const { id } = req.params; 
 
-  Schemes.findById(id)
+  Models.findById(id)
   .then(scheme => {
     if (scheme) {
       Schemes.addStep(stepData, id)
@@ -83,7 +83,7 @@ router.put('/:id', (req, res) => {
   const { id } = req.params;
   const changes = req.body;
 
-  Schemes.findById(id)
+  Models.findById(id)
   .then(scheme => {
     if (scheme) {
       Schemes.update(changes, id)
@@ -102,7 +102,7 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
 
-  Schemes.remove(id)
+  Models.remove(id)
   .then(deleted => {
     if (deleted) {
       res.json({ removed: deleted });
@@ -116,3 +116,10 @@ router.delete('/:id', (req, res) => {
 });
 
 module.exports = router;
+
+function validateId (req, res, next) {
+    const {id} = req.params
+  
+    !id ? null : console.log('id validated')
+    next()
+  }

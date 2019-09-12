@@ -1,11 +1,12 @@
 const express = require('express');
 
-const Schemes = require('./scheme-model.js');
+// const Schemes = require('../data/db-config.js');
+const Models = require('./scheme-model')
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  Schemes.find()
+  Models.find()
   .then(schemes => {
     res.json(schemes);
   })
@@ -14,10 +15,10 @@ router.get('/', (req, res) => {
   });
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', validateId, (req, res) => {
   const { id } = req.params;
 
-  Schemes.findById(id)
+  Models.findById(id)
   .then(scheme => {
     if (scheme) {
       res.json(scheme);
@@ -30,10 +31,11 @@ router.get('/:id', (req, res) => {
   });
 });
 
+
 router.get('/:id/steps', (req, res) => {
   const { id } = req.params;
 
-  Schemes.findSteps(id)
+  Models.findSteps(id)
   .then(steps => {
     if (steps.length) {
       res.json(steps);
@@ -46,11 +48,12 @@ router.get('/:id/steps', (req, res) => {
   });
 });
 
-router.post('/', (req, res) => {
+router.post('/', validateNewSchemeData, (req, res) => {
   const schemeData = req.body;
 
-  Schemes.add(schemeData)
+  Models.add(schemeData)
   .then(scheme => {
+    console.log(scheme)
     res.status(201).json(scheme);
   })
   .catch (err => {
@@ -58,14 +61,14 @@ router.post('/', (req, res) => {
   });
 });
 
-router.post('/:id/steps', (req, res) => {
+router.post('/:id/steps', validateNewStepData, (req, res) => {
   const stepData = req.body;
   const { id } = req.params; 
 
-  Schemes.findById(id)
+  Models.findById(id)
   .then(scheme => {
     if (scheme) {
-      Schemes.addStep(stepData, id)
+      Models.addStep(stepData, id)
       .then(step => {
         res.status(201).json(step);
       })
@@ -82,11 +85,12 @@ router.put('/:id', (req, res) => {
   const { id } = req.params;
   const changes = req.body;
 
-  Schemes.findById(id)
+  Models.findById(id)
   .then(scheme => {
     if (scheme) {
-      Schemes.update(changes, id)
+      Models.update(id, changes)
       .then(updatedScheme => {
+        console.log(updatedScheme, 'number of schemes updated')
         res.json(updatedScheme);
       });
     } else {
@@ -101,7 +105,7 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
 
-  Schemes.remove(id)
+  Models.remove(id)
   .then(deleted => {
     if (deleted) {
       res.json({ removed: deleted });
@@ -114,4 +118,74 @@ router.delete('/:id', (req, res) => {
   });
 });
 
+//delete that return obj deleted
+
+// router.delete('/:id', (req, res) => {
+//   const { id } = req.params
+//   let schemeRemoved = {}
+
+//   Models.findById(id)
+//       .then(scheme => {
+//           schemeRemoved = scheme
+//       })
+//       .catch(e => {
+//           res.status(500).json({error: 'error getting post by id'})
+//       })
+
+//   Models.remove(id)
+//       .then(result => {
+//           res.status(200).json({deleted: [result, schemeRemoved]})
+//       })
+//       .catch(e => {
+//           res.status(500).json({error: 'error deleting scheme'})
+//       })
+// });
+
 module.exports = router;
+
+function validateId (req, res, next) {
+    const {id} = req.params
+
+    Models.findById(id)
+      .then(id => {
+         id === undefined ? res.status(404).json({message: 'specified id not found'}) : console.log('id validated', next())
+    // next()
+        
+      })
+
+    
+  }
+
+//   function validateSchemeId (req, res, next) {
+//     let id = req.params.id
+//     let scheme = {}
+//     Models.findById(id)
+//         .then(result => {
+//             if (result) {
+//                 scheme = req.scheme;
+//                 console.log('user validated')
+//             } else {
+//                 res.status(404).json({ message: "invalid user id" })
+//             }
+//         })
+//         .catch(e => {
+//             res.status(500).json({error: 'error accessing specified user in database'})
+//         })
+    
+
+//     next()
+// }
+
+  function validateNewSchemeData(req, res, next) {
+    const newScheme = req.body
+
+    newScheme.scheme_name === undefined ? res.status(404).json({message: 'scheme name not found'}) : 
+    console.log('scheme validated')
+    next()
+  }
+
+  function validateNewStepData(req, res, next) {
+    const newStep = req.body
+
+
+  }

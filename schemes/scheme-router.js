@@ -31,6 +31,7 @@ router.get('/:id', validateId, (req, res) => {
   });
 });
 
+// need to complete
 router.get('/:id/steps', (req, res) => {
   const { id } = req.params;
 
@@ -52,6 +53,7 @@ router.post('/', (req, res) => {
 
   Models.add(schemeData)
   .then(scheme => {
+    console.log(scheme)
     res.status(201).json(scheme);
   })
   .catch (err => {
@@ -66,7 +68,7 @@ router.post('/:id/steps', (req, res) => {
   Models.findById(id)
   .then(scheme => {
     if (scheme) {
-      Schemes.addStep(stepData, id)
+      Models.addStep(stepData, id)
       .then(step => {
         res.status(201).json(step);
       })
@@ -86,8 +88,9 @@ router.put('/:id', (req, res) => {
   Models.findById(id)
   .then(scheme => {
     if (scheme) {
-      Schemes.update(changes, id)
+      Models.update(id, changes)
       .then(updatedScheme => {
+        console.log(updatedScheme, 'number of schemes updated')
         res.json(updatedScheme);
       });
     } else {
@@ -114,6 +117,29 @@ router.delete('/:id', (req, res) => {
     res.status(500).json({ message: 'Failed to delete scheme' });
   });
 });
+
+//delete that return obj deleted
+
+// router.delete('/:id', (req, res) => {
+//   const { id } = req.params
+//   let schemeRemoved = {}
+
+//   Models.findById(id)
+//       .then(scheme => {
+//           schemeRemoved = scheme
+//       })
+//       .catch(e => {
+//           res.status(500).json({error: 'error getting post by id'})
+//       })
+
+//   Models.remove(id)
+//       .then(result => {
+//           res.status(200).json({deleted: [result, schemeRemoved]})
+//       })
+//       .catch(e => {
+//           res.status(500).json({error: 'error deleting scheme'})
+//       })
+// });
 
 module.exports = router;
 

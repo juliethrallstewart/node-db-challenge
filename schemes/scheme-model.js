@@ -16,9 +16,11 @@ function find() {
 }
 
 function findById(id) {
+  console.log(id)
     return db('schemes')
         .where({ id })
         .first()
+    
 }
 
 function findSteps(id){
@@ -33,6 +35,7 @@ function findSteps(id){
 }
   
 function add(scheme) {
+  
     return db('schemes')
         .insert(scheme)
         .then(ids => {
@@ -47,6 +50,9 @@ function addStep(stepData, id) {
 }
 
 function update(id, changes) {
+    if (changes.scheme_name === undefined) {
+        return null
+    } else {
     return db('schemes')
         .where({ id })
         .update(changes)
@@ -54,6 +60,7 @@ function update(id, changes) {
         //     console.log(id)
         //     return findById(ids[0])
         // })
+    }
 }
 
 function remove(id) {
@@ -62,19 +69,3 @@ function remove(id) {
       .del();
   }
 
-
-// function findUserPosts(id) {
-    /* 
-      select * from posts as p
-      join users as u on u.id = p.user_id
-      where u.id = 123
-    */
-  
-//     return db('users as u') // remember to return the call to db()
-//       .join('posts as p', 'u.id', 'p.user_id')
-//       .where({ user_id: id })
-//       .select('p.id', 'p.contents', 'u.username')
-//       .then(posts => {
-//         return posts;
-//       });
-//   }

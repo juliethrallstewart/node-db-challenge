@@ -31,7 +31,7 @@ router.get('/:id', validateId, (req, res) => {
   });
 });
 
-// need to complete
+
 router.get('/:id/steps', (req, res) => {
   const { id } = req.params;
 
@@ -48,7 +48,7 @@ router.get('/:id/steps', (req, res) => {
   });
 });
 
-router.post('/', (req, res) => {
+router.post('/', validateNewSchemeData, (req, res) => {
   const schemeData = req.body;
 
   Models.add(schemeData)
@@ -61,7 +61,7 @@ router.post('/', (req, res) => {
   });
 });
 
-router.post('/:id/steps', (req, res) => {
+router.post('/:id/steps', validateNewStepData, (req, res) => {
   const stepData = req.body;
   const { id } = req.params; 
 
@@ -145,7 +145,47 @@ module.exports = router;
 
 function validateId (req, res, next) {
     const {id} = req.params
-  
-    !id ? null : console.log('id validated')
+
+    Models.findById(id)
+      .then(id => {
+         id === undefined ? res.status(404).json({message: 'specified id not found'}) : console.log('id validated', next())
+    // next()
+        
+      })
+
+    
+  }
+
+//   function validateSchemeId (req, res, next) {
+//     let id = req.params.id
+//     let scheme = {}
+//     Models.findById(id)
+//         .then(result => {
+//             if (result) {
+//                 scheme = req.scheme;
+//                 console.log('user validated')
+//             } else {
+//                 res.status(404).json({ message: "invalid user id" })
+//             }
+//         })
+//         .catch(e => {
+//             res.status(500).json({error: 'error accessing specified user in database'})
+//         })
+    
+
+//     next()
+// }
+
+  function validateNewSchemeData(req, res, next) {
+    const newScheme = req.body
+
+    newScheme.scheme_name === undefined ? res.status(404).json({message: 'scheme name not found'}) : 
+    console.log('scheme validated')
     next()
+  }
+
+  function validateNewStepData(req, res, next) {
+    const newStep = req.body
+
+
   }
